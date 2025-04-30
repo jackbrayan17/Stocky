@@ -38,7 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
      'stoqtrack',
-     'core'
+     'core',
+     'widget_tweaks',
 ]
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = '/home/'
