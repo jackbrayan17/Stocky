@@ -9,5 +9,4 @@ pandas==2.2.2
 numpy==1.26.4
 whitenoise
 django==5.2
-gunicorn==20.1.0
 django-admin
