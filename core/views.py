@@ -9,6 +9,9 @@ from django.db.models import F
 from django.contrib import messages
 from .models import Profile
 from .forms import UpdateProductForm, ManagerRegistrationForm
+from django.db.models import Sum, Count, Q
+from django.utils.timezone import now
+from django.db.models.functions import TruncMonth
 
 # List products for a specific store
 def product_list(request, store_id):
