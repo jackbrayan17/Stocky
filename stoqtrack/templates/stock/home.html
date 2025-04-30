@@ -4,7 +4,7 @@
     <h1>Welcome, {{ user.username }} 👑</h1>
 
     <div class="mb-4">
-        <a href="{% url 'product_list' store_id=1 %}" class="btn btn-success">View All Products</a>
+        <a href="{% url 'product_list' store.id %}" class="btn btn-success">View All Products</a>
         <a href="{% url 'orders_list' store.id %}" class="btn">View Orders</a>
     </div>
     
