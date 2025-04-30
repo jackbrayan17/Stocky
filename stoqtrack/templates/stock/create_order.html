@@ -1,0 +1,116 @@
+{% extends 'stock/base.html' %}
+{% block content %}
+<div class="max-w-2xl mx-auto mt-10">
+    <h2 class="text-3xl font-bold text-center mb-6">Create New Order</h2>
+
+    <form method="post" class="space-y-4" id="orderForm">
+        {% csrf_token %}
+    
+        <div>
+            {{ form.client_name.label_tag }}  
+            {{ form.client_name }}
+        </div>
+        <div>
+            {{ form.client_phone.label_tag }}
+            {{ form.client_phone }}
+        </div>
+    
+        <h3 class="text-xl font-bold mt-6">Order Items</h3>
+        
+        <div id="orderItems">
+            <div class="order-item border p-4 rounded mb-4">
+                <label for="product_1">Product:</label>
+                <select name="product" id="product_1" class="w-full p-2 border rounded">
+                    {% for product in products %}
+                        <option value="{{ product.id }}" data-price="{{ product.price }}">{{ product.name }} ({{ product.price }} FCFA)</option>
+                    {% endfor %}
+                </select>
+                <label for="quantity_1">Quantity:</label>
+                <input type="number" name="quantity" id="quantity_1" class="w-full p-2 border rounded" value="1" min="1" />
+            </div>
+        </div>
+
+        <button type="button" id="addProductButton" class="w-full bg-blue-500 text-white py-2 rounded mb-4">Add Another Product</button>
+
+        <p class="text-lg font-bold mt-6">Total: <span id="totalAmount">0</span> FCFA</p>
+    
+        <button type="submit" class="w-full bg-green-600 text-white py-2 rounded">Place Order</button>
+    </form>
+    
+    <script>
+        let productIndex = 1; // Start index for products
+        const productPrices = {}; // Store product prices for dynamic updates
+        const orderItemsContainer = document.getElementById('orderItems');
+        const totalAmountEl = document.getElementById('totalAmount');
+
+        // Populate product prices from the template context
+        {% for product in products %}
+            productPrices["{{ product.id }}"] = {{ product.price }};
+        {% endfor %}
+
+        // Function to update the total amount
+        function updateTotal() {
+            let totalAmount = 0;
+
+            // Iterate over all order items
+            const orderItems = orderItemsContainer.querySelectorAll('.order-item');
+            orderItems.forEach(item => {
+                const productDropdown = item.querySelector('select');
+                const quantityInput = item.querySelector('input');
+                
+                const productId = productDropdown.value;
+                const quantity = parseInt(quantityInput.value, 10);
+
+                if (productId && quantity > 0) {
+                    const price = productPrices[productId] || 0;
+                    totalAmount += price * quantity;
+                }
+            });
+
+            // Update the displayed total amount
+            totalAmountEl.innerText = totalAmount.toFixed(2);
+        }
+
+        // Add event listeners for product dropdown and quantity input in existing order items
+        function addEventListenersToNewItem(itemIndex) {
+            const productDropdown = document.querySelector(`#product_${itemIndex}`);
+            const quantityInput = document.querySelector(`#quantity_${itemIndex}`);
+
+            productDropdown.addEventListener('change', updateTotal);
+            quantityInput.addEventListener('input', updateTotal);
+        }
+
+        // Add a new product item input when the button is clicked
+        document.getElementById('addProductButton').addEventListener('click', () => {
+            productIndex++; // Increment the product index for new input fields
+
+            // Create new product item element
+            const newItem = document.createElement('div');
+            newItem.classList.add('order-item', 'border', 'p-4', 'rounded', 'mb-4');
+
+            newItem.innerHTML = `
+                <label for="product_${productIndex}">Product:</label>
+                <select name="product" id="product_${productIndex}" class="w-full p-2 border rounded">
+                    {% for product in products %}
+                        <option value="{{ product.id }}" data-price="{{ product.price }}">{{ product.name }} ({{ product.price }} FCFA)</option>
+                    {% endfor %}
+                </select>
+                <label for="quantity_${productIndex}">Quantity:</label>
+                <input type="number" name="quantity" id="quantity_${productIndex}" class="w-full p-2 border rounded" value="1" min="1" />
+            `;
+
+            // Append the new product item to the order items container
+            orderItemsContainer.appendChild(newItem);
+
+            // Add event listeners to the new inputs
+            addEventListenersToNewItem(productIndex);
+
+            // Recalculate total price
+            updateTotal();
+        });
+
+        // Initialize event listeners for the first product item
+        addEventListenersToNewItem(1);
+    </script>
+    
+{% endblock %}

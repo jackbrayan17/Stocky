@@ -1,0 +1,58 @@
+{% extends 'stock/base.html' %}
+
+{% block content %}
+<div class="flex justify-between items-center mt-8">
+    <h2 class="text-3xl font-bold">Product List</h2>
+    {% if store %}
+    <a href="{% url 'add_product' store.id %}" 
+       class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded shadow">
+       + Add Product
+    </a>
+{% else %}
+    <span class="text-red-500">No store selected</span>
+{% endif %}
+    <!-- Add Product Button -->
+   
+</div>
+
+<div class="mt-6">
+    <table class="w-full table-auto border-collapse">
+        <thead>
+            <tr class="bg-gray-200">
+                <th class="border p-2">#</th>
+                <th class="border p-2">Name</th>
+                <th class="border p-2">Price</th>
+                <th class="border p-2">Stock</th>
+                <th class="border p-2">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for product in products %}
+            <tr class="bg-white hover:bg-gray-50">
+                <td class="border p-2">{{ forloop.counter }}</td>
+                <td class="border p-2">{{ product.name }}</td>
+                <td class="border p-2">{{ product.price }} FCFA</td>
+                <td class="border p-2">
+                    {% if product.quantity <= product.alert_threshold %}
+                        <span class="text-red-600 font-semibold">{{ product.quantity }} (Low!)</span>
+                    {% else %}
+                        {{ product.quantity }}
+                    {% endif %}
+                </td>
+                <td class="border p-2 flex gap-2">
+                    <a href="{% url 'update_product' product.id %}"  
+                    class="bg-yellow-500 hover:bg-yellow-600 text-white px-2 py-1 rounded">
+                    Edit
+                 </a>
+                 
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" class="border p-4 text-center text-gray-500">No products available</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

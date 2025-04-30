@@ -1,0 +1,27 @@
+{% extends 'stock/base.html' %}
+
+{% block content %}
+<div class="flex justify-between items-center mt-8">
+    <h2 class="text-3xl font-bold">Store Profiles</h2>
+</div>
+
+<div class="grid md:grid-cols-2 gap-6 mt-6">
+    {% for store in stores %}
+    <div class="border rounded-lg p-4 shadow bg-white">
+        <h3 class="text-xl font-bold mb-2">{{ store.name }}</h3>
+        <p><strong>Manager:</strong> {{ store.manager_name }}</p>
+        <p><strong>Phone:</strong> {{ store.manager_phone }}</p>
+        <p><strong>Town:</strong> {{ store.town }}, <strong>Quarter:</strong> {{ store.quarter }}</p>
+        <p><strong>Code:</strong> {{ store.code }}</p>
+        {% if store.latitude and store.longitude %}
+        <p><strong>Position:</strong> {{ store.latitude }}, {{ store.longitude }}</p>
+        {% endif %}
+        <div class="mt-4 flex gap-2">
+            <a href="{% url 'product_list' store.id %}" class="bg-blue-600 text-white px-3 py-1 rounded">View Products</a>
+        </div>
+    </div>
+    {% empty %}
+    <p class="text-center col-span-2 text-gray-500">No stores registered yet.</p>
+    {% endfor %}
+</div>
+{% endblock %}
