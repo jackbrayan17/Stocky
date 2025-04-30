@@ -215,13 +215,50 @@ def logout_view(request):
     return redirect('login')
 def home_view(request):
     if request.user.profile.role == 'ADMIN':
-        return redirect('/admin')  # or wherever
+        return redirect('/admin')
     elif request.user.profile.role == 'MANAGER':
         store = request.user.profile.store
-        return render(request, 'stock/home.html', {'store': store})
+
+        # Top 10 most sold products
+        top_products = (
+            Product.objects.filter(store=store)
+            .annotate(total_sold=Sum('orderitem__quantity'))
+            .order_by('-total_sold')[:10]
+        )
+
+        # Stock status counts
+        in_stock_count = Product.objects.filter(store=store, quantity__gt=F('alert_threshold')).count()
+        low_stock_count = Product.objects.filter(store=store, quantity__lte=F('alert_threshold')).count()
+
+        # Total revenue
+        total_revenue = Order.objects.filter(store=store).aggregate(Sum('total_amount'))['total_amount__sum'] or 0
+
+        # Total orders
+        total_orders = Order.objects.filter(store=store).count()
+
+        # Orders evolution over last 12 months
+        orders_per_month = (
+            Order.objects.filter(store=store, created_at__year=now().year)
+            .annotate(month=TruncMonth('created_at'))
+            .values('month')
+            .annotate(total=Count('id'))
+            .order_by('month')
+        )
+
+        return render(request, 'stock/home.html', {
+            'store': store,
+            'top_products': top_products,
+            'in_stock_count': in_stock_count,
+            'low_stock_count': low_stock_count,
+            'total_revenue': total_revenue,
+            'total_orders': total_orders,
+            'orders_per_month': orders_per_month
+        })
     else:
         messages.error(request, "Access Denied.")
         return redirect('login')
+
+
 
 def order_list(request):
     user_profile = Profile.objects.get(user=request.user)
