@@ -1,8 +1,27 @@
-{% extends 'stock/base.html' %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Stock Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
 
-{% load widget_tweaks %}
+<body class="bg-gray-100 font-sans leading-normal tracking-normal flex flex-col min-h-screen">
 
-{% block content %}
+    <!-- Navbar -->
+    <nav class="bg-emerald-600 p-4 shadow-lg">
+        <div class="container mx-auto flex flex-wrap items-center justify-between">
+            <a href="/" class="text-white text-2xl font-bold">StockMaster</a>
+            <button class="text-white md:hidden focus:outline-none" onclick="toggleMenu()">
+                <i class="fas fa-bars"></i>
+            </button>
+        
+        </div>
+    </nav>
+
+    <div class="container mx-auto px-4 flex-grow">
+
 <div class="max-w-md mx-auto mt-10 bg-white p-8 rounded-xl shadow-lg">
     <h2 class="text-3xl font-bold text-center mb-6 text-gray-800">Créer un compte</h2>
     
@@ -61,4 +80,20 @@
         <a href="{% url 'login' %}" class="text-blue-500 underline ml-1">Connectez-vous ici</a>
     </p>
 </div>
-{% endblock %}
+</div>
+
+<!-- Footer -->
+<footer class="bg-emerald-600 text-white mt-10 p-4">
+    <div class="container mx-auto text-center">
+        <p>&copy; 2025 &copy;Stocky Place | 📞 +237 694 10 35 85 | 📧 jackbrayan1707@gmail.com</p>
+    </div>
+</footer>
+
+<script>
+    function toggleMenu() {
+        var menu = document.getElementById("menu");
+        menu.classList.toggle("hidden");
+    }
+</script>
+</body>
+</html>

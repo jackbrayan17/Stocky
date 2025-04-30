@@ -4,15 +4,46 @@
     <meta charset="UTF-8">
     <title>Stock Management</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
-<body class="bg-gray-100 font-sans leading-normal tracking-normal">
 
-    <div class="container mx-auto px-4">
-        <h1>Welcome, {{ user.username }}!</h1>
-        <a href="/logout">Log Out</a>
+<body class="bg-gray-100 font-sans leading-normal tracking-normal flex flex-col min-h-screen">
+
+    <!-- Navbar -->
+    <nav class="bg-emerald-600 p-4 shadow-lg">
+        <div class="container mx-auto flex flex-wrap items-center justify-between">
+            <a href="/" class="text-white text-2xl font-bold">StockMaster</a>
+            <button class="text-white md:hidden focus:outline-none" onclick="toggleMenu()">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div id="menu" class="hidden w-full md:flex md:items-center md:w-auto">
+                <ul class="pt-4 text-white md:flex md:justify-between md:pt-0">
+                    <li><a class="md:p-4 py-2 block hover:text-gray-300" href="{% url 'home' %}">Dashboard</a></li>
+                    <li><a class="md:p-4 py-2 block hover:text-gray-300" href="{% url 'product_list' store.id %}">Produits</a></li>
+                    <li><a class="md:p-4 py-2 block hover:text-gray-300" href="{% url 'orders_list' store.id %}">Commandes</a></li>
+                    <li><a class="md:p-4 py-2 block hover:text-gray-300" href="{% url 'logout' %}">Log Out</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto px-4 flex-grow">
         {% block content %}
         {% endblock %}
     </div>
 
+    <!-- Footer -->
+    <footer class="bg-emerald-600 text-white mt-10 p-4">
+        <div class="container mx-auto text-center">
+            <p>&copy; 2025 &copy;Stocky Place | 📞 +237 694 10 35 85 | 📧 jackbrayan1707@gmail.com</p>
+        </div>
+    </footer>
+
+    <script>
+        function toggleMenu() {
+            var menu = document.getElementById("menu");
+            menu.classList.toggle("hidden");
+        }
+    </script>
 </body>
 </html>

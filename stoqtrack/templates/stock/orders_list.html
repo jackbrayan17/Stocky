@@ -2,13 +2,13 @@
 
 {% block content %}
 <div class="flex justify-between items-center mt-8">
-    <h2 class="text-3xl font-bold">Orders List</h2>
+    <h2 class="text-3xl font-bold">Liste des commandes</h2>
     
     <!-- Add Order Button -->
     {% if store %}
-    <a href="{% url 'create_order' store.id %}" class="btn">+ Add Order</a>
+    <a href="{% url 'create_order' store.id %}" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded shadow">+ Ajouter une commande</a>
 {% else %}
-    <span class="text-red-500">No store selected</span>
+    <span class="text-red-500">Pas de boutique selectionnee</span>
 {% endif %}
 
 </div>
@@ -37,13 +37,13 @@
                 <td class="border p-2 flex gap-2">
                     <a href="{% url 'order_detail' pk=order.id %}" 
                        class="bg-indigo-500 hover:bg-indigo-600 text-white px-2 py-1 rounded">
-                       View
+                       Voir +
                     </a>
                 </td>
             </tr>
             {% empty %}
             <tr>
-                <td colspan="6" class="border p-4 text-center text-gray-500">No orders yet</td>
+                <td colspan="6" class="border p-4 text-center text-gray-500">Pas de commandes disponible</td>
             </tr>
             {% endfor %}
         </tbody>
