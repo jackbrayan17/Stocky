@@ -10,3 +10,4 @@ numpy==1.26.4
 whitenoise
 django==5.2
 django-admin
+django-widget-tweaks==1.4.12
