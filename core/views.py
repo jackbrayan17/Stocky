@@ -8,20 +8,39 @@ from django.urls import reverse
 from django.db.models import F
 from django.contrib import messages
 from .models import Profile
-from .forms import UpdateProductForm, ManagerRegistrationForm
-from django.db.models import Sum, Count, Q
-from django.utils.timezone import now
-from django.db.models.functions import TruncMonth
+from .forms import SuggestionForm, UpdateProductForm, ManagerRegistrationForm
+from django.db.models import Q
 
-# List products for a specific store
+def suggestion_view(request):
+    if request.method == 'POST':
+        form = SuggestionForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Thank you for your suggestion 🙏🏽✨')
+            return redirect('home')
+    else:
+        form = SuggestionForm()
+    return render(request, 'stock/suggestions.html', {'form': form})
+
 def product_list(request, store_id):
     store = get_object_or_404(Store, id=store_id)
-    products = Product.objects.filter(store=store)
+    search_query = request.GET.get('q', '')  # récupère la valeur du champ search
+
+    if search_query:
+        products = Product.objects.filter(
+            Q(store=store) & 
+            (Q(name__icontains=search_query) | Q(price__icontains=search_query))
+        )
+    else:
+        products = Product.objects.filter(store=store)
 
     return render(request, 'stock/product_list.html', {
         'store': store,
-        'products': products
+        'products': products,
+        'search_query': search_query
     })
+
+
 from .forms import AddProductForm
 # Add a product to a store
 def add_product(request, store_id):
@@ -79,61 +98,77 @@ def update_product(request, product_id):
         form = UpdateProductForm(instance=product)
 
     return render(request, 'stock/update_product.html', {'product': product, 'form': form})
+
+
 # Create an order for a store
+
 from .forms import CreateOrderForm
 from django.forms import formset_factory
 from .forms import OrderItemForm
+from django.urls import reverse
+
 def create_order(request, store_id):
     store = get_object_or_404(Store, id=store_id)
     products = Product.objects.filter(store=store)
+    form = CreateOrderForm(store, request.POST or None)
 
     if request.method == 'POST':
-        form = OrderItemForm(request.POST, store=store)
-        if form.is_valid():
-            client_name = form.cleaned_data['client_name']
-            client_phone = form.cleaned_data['client_phone']
-            product = form.cleaned_data['product']
-            quantity = form.cleaned_data['quantity']
+        client_name = request.POST.get('client_name')
+        client_phone = request.POST.get('client_phone')
 
-            if product.quantity < quantity:
-                messages.error(request, f'Not enough stock for {product.name}.')
-                return redirect(reverse('create_order', args=[store.id]))
+        order = Order.objects.create(
+            client_name=client_name,
+            client_phone=client_phone,
+            store=store
+        )
 
-            order = Order.objects.create(
-                user=request.user if request.user.is_authenticated else None,
-                store=store,
-                client_name=client_name,
-                client_phone=client_phone,
-                total_amount=product.price * quantity
-            )
+        product_ids = request.POST.getlist('product')
+        quantities = request.POST.getlist('quantity')
 
-            OrderItem.objects.create(
-                order=order,
-                product=product,
-                quantity=quantity,
-                price_at_purchase=product.price
-            )
+        order_total = 0
 
-            product.quantity = F('quantity') - quantity
-            product.save()
+        for product_id, quantity in zip(product_ids, quantities):
+            quantity = int(quantity)
+            if quantity > 0:
+                product = Product.objects.filter(id=product_id, store=store).first()
+                if not product:
+                    continue
+                if product.quantity < quantity:
+                    continue
+                OrderItem.objects.create(
+                    order=order,
+                    product=product,
+                    quantity=quantity,
+                    price_at_purchase=product.price
+                )
+                product.quantity -= quantity
+                product.save()
 
-            messages.success(request, 'Order placed successfully!')
-            return redirect(reverse('product_list', args=[store.id]))
+                # Add to total
+                order_total += product.price * quantity
 
-    else:
-        form = OrderItemForm(store=store)
+        # Update order total
+        order.total_amount = order_total
+        order.save()
 
-    return render(request, 'stock/create_order.html', {
+        return redirect(reverse('core:orders_list', args=[store.id]))
+
+    context = {
         'form': form,
-        'store': store,
-        'products': products
-    })
+        'products': products,
+        'store': store, 
+        'store_id': store_id,
+    }
+    return render(request, 'stock/create_order.html', context)
+
+
+
 def order_detail(request, order_id):
     # Get the order from the database, or return a 404 if not found
     order = get_object_or_404(Order, id=order_id)
-
+    store = order.store
     # Pass the order data to the template
-    return render(request, 'stock/order_detail.html', {'order': order})
+    return render(request, 'stock/order_detail.html', {'order': order,'store':store})
 # Sales report page
 def sales_report(request, store_id):
     store = get_object_or_404(Store, id=store_id)
@@ -216,6 +251,10 @@ def login_view(request):
 def logout_view(request):
     logout(request)
     return redirect('login')
+from django.db.models import Sum, Count, Q
+from django.utils.timezone import now
+from django.db.models.functions import TruncMonth
+
 def home_view(request):
     if request.user.profile.role == 'ADMIN':
         return redirect('/admin')
@@ -238,7 +277,7 @@ def home_view(request):
 
         # Total orders
         total_orders = Order.objects.filter(store=store).count()
-
+        total_products = Product.objects.count()
         # Orders evolution over last 12 months
         orders_per_month = (
             Order.objects.filter(store=store, created_at__year=now().year)
@@ -251,6 +290,7 @@ def home_view(request):
         return render(request, 'stock/home.html', {
             'store': store,
             'top_products': top_products,
+            'total_products': total_products,
             'in_stock_count': in_stock_count,
             'low_stock_count': low_stock_count,
             'total_revenue': total_revenue,
@@ -262,17 +302,6 @@ def home_view(request):
         return redirect('login')
 
 
-
-def order_list(request):
-    user_profile = Profile.objects.get(user=request.user)
-    store = user_profile.store if user_profile.role == 'MANAGER' else None
-    orders = Order.objects.filter(store=store) if store else []
-
-    context = {
-        'orders': orders,
-        'store': store
-    }
-    return render(request, 'stock/order_list.html', context)
 
 # Password reset view
 def password_reset_view(request):
