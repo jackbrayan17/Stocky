@@ -19,38 +19,26 @@
             <div id="menu" class="hidden w-full md:flex md:items-center md:w-auto">
                 <ul class="pt-4 text-white md:flex md:justify-between md:pt-0">
                     <li><a class="md:p-4 py-2 block hover:text-gray-300" href="{% url 'home' %}">Dashboard</a></li>
-                    <li><a class="md:p-4 py-2 block hover:text-gray-300" href="{% url 'product_list' order.store.id %}">Produits</a></li>
-                    <li><a class="md:p-4 py-2 block hover:text-gray-300" href="{% url 'orders_list' order.store.id %}">Commandes</a></li>
+                    <li><a class="md:p-4 py-2 block hover:text-gray-300" href="/suggestion">Boite a Suggestion</a></li>
                     <li><a class="md:p-4 py-2 block hover:text-gray-300" href="{% url 'logout' %}">Log Out</a></li>
+
                 </ul>
             </div>
         </div>
     </nav>
 
     <div class="container mx-auto px-4 flex-grow">
-      
-<div class="max-w-2xl mx-auto mt-10">
-    <h2 class="text-3xl font-bold text-center mb-6">Order Details</h2>
+<div class="max-w-xl mx-auto mt-10">
+    <h2 class="text-3xl font-bold text-center mb-6">💬 Faire une suggestion</h2>
 
-    <div class="order-details border p-4 rounded mb-4">
-        <h3 class="text-xl font-bold">Order ID: {{ order.id }}</h3>
-        <p><strong>Client Name:</strong> {{ order.client_name }}</p>
-        <p><strong>Client Phone:</strong> {{ order.client_phone }}</p>
-        <p><strong>Order Date:</strong> {{ order.created_at }}</p>
+    <form method="post" class="space-y-4">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="w-full bg-green-600 text-white py-2 rounded">Envoyer</button>
+    </form>
 
-        <h4 class="text-lg font-bold mt-4">Ordered Items</h4>
-        <ul>
-            {% for item in order.items.all %}
-                <li>{{ item.product.name }} - Quantity: {{ item.quantity }} - Price: {{ item.product.price }} FCFA</li>
-            {% endfor %}
-        </ul>
-
-        <p class="text-lg font-bold mt-6">Total Amount: <span>{{ order.total_amount }}</span> FCFA</p>
-    </div>
-
-    <a href="{% url 'orders_list' order.store.id %}" class="text-blue-500">Back to Orders List</a>
 </div>
-</div>
+
     <!-- Footer -->
     <footer class="bg-emerald-600 text-white mt-10 p-4">
         <div class="container mx-auto text-center">

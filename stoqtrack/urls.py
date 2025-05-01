@@ -1,17 +1,16 @@
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 from core import views
 # from .views import OrderDetailView, orders_list
-
+app_name = 'stoqtrack'
 urlpatterns = [
     # Authentication Routes
-    path('/', views.login_view, name='login_view'),
-    
+      path('store/', include('core.urls')), 
     path('register/', views.register_view, name='register'),
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
     path('password-reset/', views.password_reset_view, name='password_reset'),
-
+    path('suggestion/', views.suggestion_view, name='suggestion'),
     # Admin Route
     path('admin/', admin.site.urls),
 

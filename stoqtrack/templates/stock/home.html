@@ -4,62 +4,72 @@
 
 <div class="container mx-auto p-6">
 
-    <h1 class="text-3xl font-bold text-emerald-600 mb-6">Welcome, {{ user.username }}</h1>
+    <h1 class="text-3xl font-bold text-emerald-600 mb-6">Tableau de bord</h1>
+    <h2 class="text2xl font-bold text-emerald-600 mb-6">Bienvenue <b style="color: black;">{{ user.username }}</b></h2>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <!-- Conteneur en colonne -->
+    <div class="flex flex-col gap-6 mb-8">
 
-        <!-- Total Revenue Card -->
+        <!-- Carte Total Revenue -->
         <div class="bg-white rounded-2xl shadow-lg p-6 flex items-center space-x-4">
             <i class="fas fa-coins text-4xl text-emerald-500"></i>
             <div>
-                <h2 class="text-lg font-semibold text-gray-600">Total Revenue</h2>
+                <h2 class="text-lg font-semibold text-gray-600">Chiffre d'Affaires Total</h2>
                 <p class="text-2xl font-bold text-emerald-700">{{ total_revenue }} FCFA</p>
             </div>
         </div>
 
-        <!-- Total Orders Card -->
+        <!-- Carte Total Orders -->
         <div class="bg-white rounded-2xl shadow-lg p-6 flex items-center space-x-4">
             <i class="fas fa-shopping-cart text-4xl text-emerald-500"></i>
             <div>
-                <h2 class="text-lg font-semibold text-gray-600">Total Orders</h2>
+                <h2 class="text-lg font-semibold text-gray-600">Commandes Totales</h2>
                 <p class="text-2xl font-bold text-emerald-700">{{ total_orders }}</p>
             </div>
         </div>
+        <!-- Carte Total Produits -->
+<div class="bg-white rounded-2xl shadow-lg p-6 flex items-center space-x-4">
+    <i class="fas fa-boxes text-4xl text-emerald-500"></i>
+    <div>
+        <h2 class="text-lg font-semibold text-gray-600">Produits Référencés</h2>
+        <p class="text-2xl font-bold text-emerald-700">{{ total_products }}</p>
+    </div>
+</div>
+
+        <!-- Carte Top Produits -->
         <div class="bg-white rounded-2xl shadow-lg p-6">
             <h2 class="text-lg font-semibold text-gray-600 mb-4 flex items-center">
-                <i class="fas fa-crown mr-2 text-emerald-500"></i> Top 10 Most Sold Products
+                <i class="fas fa-crown mr-2 text-emerald-500"></i> Top 10 des Produits Vendus
             </h2>
             <ul class="space-y-2">
                 {% for product in top_products %}
                     <li class="flex justify-between text-gray-700">
                         <span>{{ product.name }}</span>
-                        <span class="font-semibold text-emerald-600">{{ product.total_sold|default:0 }} sold</span>
+                        <span class="font-semibold text-emerald-600">{{ product.total_sold|default:0 }} vendus</span>
                     </li>
                 {% empty %}
-                    <li class="text-gray-500">No sales yet.</li>
+                    <li class="text-gray-500">Aucune vente pour l’instant.</li>
                 {% endfor %}
             </ul>
         </div>
-        <!-- Stock Status Chart -->
+
+        <!-- Graphique État du Stock -->
         <div class="bg-white rounded-2xl shadow-lg p-6">
             <h2 class="text-lg font-semibold text-gray-600 mb-4 flex items-center">
-                <i class="fas fa-chart-pie mr-2 text-emerald-500"></i> Stock Status
+                <i class="fas fa-chart-pie mr-2 text-emerald-500"></i> État du Stock
             </h2>
             <canvas id="stockChart"></canvas>
         </div>
 
-    </div>
+        <!-- Graphique Commandes -->
+        <div class="bg-white rounded-2xl shadow-lg p-6">
+            <h2 class="text-lg font-semibold text-gray-600 mb-4 flex items-center">
+                <i class="fas fa-chart-line mr-2 text-emerald-500"></i> Évolution des Commandes ({{ now.year }})
+            </h2>
+            <canvas id="ordersChart"></canvas>
+        </div>
 
-    <!-- Orders Evolution Chart -->
-    <div class="bg-white rounded-2xl shadow-lg p-6 mb-8">
-        <h2 class="text-lg font-semibold text-gray-600 mb-4 flex items-center">
-            <i class="fas fa-chart-line mr-2 text-emerald-500"></i> Orders Evolution ({{ now.year }})
-        </h2>
-        <canvas id="ordersChart"></canvas>
     </div>
-
-    <!-- Top 10 Products -->
-   
 
 </div>
 
@@ -68,10 +78,10 @@
 
 <script>
     const stockData = {
-        labels: ['In Stock', 'Low Stock'],
+        labels: ['En stock', 'Stock faible'],
         datasets: [{
             data: [{{ in_stock_count }}, {{ low_stock_count }}],
-            backgroundColor: ['#10B981', '#EF4444']  // emeraude green and red
+            backgroundColor: ['#10B981', '#EF4444']
         }]
     };
 
@@ -96,7 +106,7 @@
         data: {
             labels: ordersLabels,
             datasets: [{
-                label: 'Orders Evolution ({{ now.year }})',
+                label: 'Évolution des Commandes ({{ now.year }})',
                 data: ordersData,
                 borderColor: '#10B981',
                 backgroundColor: '#A7F3D0',

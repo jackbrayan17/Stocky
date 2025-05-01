@@ -1,3 +1,5 @@
+{% load widget_tweaks %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -67,13 +69,7 @@
         </div>
     {% endif %}
 
-    {% if messages %}
-        <ul class="mt-4">
-            {% for message in messages %}
-                <li class="text-red-500">{{ message }}</li>
-            {% endfor %}
-        </ul>
-    {% endif %}
+ 
         
     <p class="mt-6 text-center text-gray-600">
         Vous avez déjà un compte ? 

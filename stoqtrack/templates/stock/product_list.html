@@ -14,6 +14,21 @@
     <!-- Add Product Button -->
    
 </div>
+<div class="mt-4 flex justify-between items-center">
+    <form method="GET" class="flex space-x-2">
+        <input type="text" name="q" value="{{ search_query }}" placeholder="Rechercher un produit..."
+               class="border border-gray-300 rounded px-4 py-2 focus:ring-emerald-500 focus:border-emerald-500">
+        <button type="submit"
+                class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded">
+            Rechercher
+        </button>
+    </form>
+
+    {% if search_query %}
+        <a href="{% url 'product_list' store.id %}" 
+           class="text-emerald-600 font-semibold">Réinitialiser</a>
+    {% endif %}
+</div>
 
 <div class="mt-6">
     <table class="w-full table-auto border-collapse">

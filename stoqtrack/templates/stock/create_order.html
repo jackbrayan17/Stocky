@@ -22,8 +22,10 @@
                 <label for="product_1">Product:</label>
                 <select name="product" id="product_1" class="w-full p-2 border rounded">
                     {% for product in products %}
-                        <option value="{{ product.id }}" data-price="{{ product.price }}">{{ product.name }} ({{ product.price }} FCFA)</option>
-                    {% endfor %}
+                    <option value="{{ product.id }}" data-price="{{ product.price }}">
+                        {{ product.name }} - <b>Stock:</b> {{ product.quantity }} ({{ product.price }} FCFA)
+                    </option>
+                     {% endfor %}
                 </select>
                 <label for="quantity_1">Quantity:</label>
                 <input type="number" name="quantity" id="quantity_1" class="w-full p-2 border rounded" value="1" min="1" />
@@ -92,7 +94,10 @@
                 <label for="product_${productIndex}">Product:</label>
                 <select name="product" id="product_${productIndex}" class="w-full p-2 border rounded">
                     {% for product in products %}
-                        <option value="{{ product.id }}" data-price="{{ product.price }}">{{ product.name }} ({{ product.price }} FCFA)</option>
+                       <option value="{{ product.id }}" data-price="{{ product.price }}">
+                            {{ product.name }} - <b>Stock:</b> {{ product.quantity }} ({{ product.price }} FCFA)
+                        </option>
+
                     {% endfor %}
                 </select>
                 <label for="quantity_${productIndex}">Quantity:</label>
