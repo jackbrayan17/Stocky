@@ -72,7 +72,7 @@ def add_product(request, store_id):
             if request.user.is_authenticated:
                 create_notification(
                     request.user, 
-                    f'Product "{product.name}" added successfully to {store.name}.', 
+                    f'Product "{product.name}" added successfully to {store.store_name}.', 
                     'SUCCESS'
                 )
             messages.success(request, 'Product added successfully!')
