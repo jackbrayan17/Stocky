@@ -355,7 +355,7 @@ def home_view(request):
 
         # Total orders
         total_orders = Order.objects.filter(store=store).count()
-        total_products = Product.objects.count()
+        total_products = Product.objects.filter(store=store).count()
         # Orders evolution over last 12 months
         orders_per_month = (
             Order.objects.filter(store=store, created_at__year=now().year)
