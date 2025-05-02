@@ -49,11 +49,16 @@ class Product(models.Model):
 
 # Order model
 class Order(models.Model):
+    STATUS_CHOICES = [
+        ('Pending', 'Pending'),
+        ('Delivered', 'Delivered'),
+    ]
     user = models.ForeignKey(User, on_delete=models.CASCADE,null=True)
     store = models.ForeignKey(Store, on_delete=models.CASCADE, related_name = 'orders')
     client_name = models.CharField(max_length=255)
     client_phone = models.CharField(max_length=20)
     total_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.0)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='Pending')
     created_at = models.DateTimeField(auto_now_add=True)
     @property
     def items(self):
@@ -66,6 +71,12 @@ class Order(models.Model):
     def __str__(self):
         return f"Order {self.id} - {self.store.store_name}"
 
+class Location(models.Model):
+    country = models.CharField(max_length=100)
+    town = models.CharField(max_length=100)
+    quarter = models.CharField(max_length=100)
+    latitude = models.FloatField()
+    longitude = models.FloatField()
 
 
 # Order Item model

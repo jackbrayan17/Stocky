@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      body {
+        font-family: 'Helvetica', sans-serif;
+        font-size: 14px;
+        color: #1f2937;
+        margin: 20px;
+        line-height: 1.6;
+      }
+      h1 {
+        text-align: center;
+        font-size: 24px;
+        color: #111827;
+        margin-bottom: 20px;
+      }
+      p {
+        margin: 8px 0;
+      }
+      .info {
+        background-color: #f3f4f6;
+        padding: 12px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+      }
+      .items {
+        margin-bottom: 20px;
+      }
+      .item {
+        padding: 10px;
+        border-bottom: 1px solid #d1d5db;
+      }
+      .item:last-child {
+        border-bottom: none;
+      }
+      .item strong {
+        display: inline-block;
+        min-width: 90px;
+        color: #111827;
+      }
+      .total {
+        font-size: 16px;
+        font-weight: bold;
+        text-align: right;
+        color: #111827;
+        margin-top: 20px;
+      }
+      .footer {
+        margin-top: 30px;
+        text-align: center;
+        font-size: 12px;
+        color: #6b7280;
+      }
+      @media print {
+        body {
+          margin: 0;
+          padding: 0;
+        }
+        h1 {
+          font-size: 20px;
+        }
+        .info, .items, .total {
+          page-break-inside: avoid;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Order Receipt</h1>
+
+    <div class="info">
+      <p><strong>Order ID:</strong> {{ order.id }}</p>
+      <p><strong>Client:</strong> {{ order.customer_name }}</p>
+    </div>
+
+    <div class="items">
+      {% for item in order.items.all %}
+      <div class="item">
+        <p><strong>Product:</strong> {{ item.product_name }}</p>
+        <p><strong>Quantity:</strong> {{ item.quantity }}</p>
+        <p><strong>Price:</strong> {{ item.price }} FCFA</p>
+      </div>
+      {% endfor %}
+    </div>
+
+    <p class="total">Total: {{ order.total_amount }} FCFA</p>
+
+    <div class="footer">
+      <p>Thank you for your order 🙏</p>
+    </div>
+  </body>
+</html>

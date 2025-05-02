@@ -10,6 +10,40 @@ from django.contrib import messages
 from .models import Profile, Notification
 from .forms import SuggestionForm, UpdateProductForm, ManagerRegistrationForm
 from django.db.models import Q
+from django.http import HttpResponse
+from django.template.loader import get_template
+from xhtml2pdf import pisa
+import io
+
+from django.http import HttpResponse
+# from reportlab.pdfgen import canvas
+# from reportlab.lib.pagesizes import letter
+
+def download_order_pdf(request, order_id):
+    order = get_object_or_404(Order, id=order_id)
+    template = get_template('stock/order_receipt.html')
+    html = template.render({'order': order})
+
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="Order_{order.id}.pdf"'
+
+    pisa_status = pisa.CreatePDF(html, dest=response)
+
+    if pisa_status.err:
+        return HttpResponse('We had some errors <pre>' + html + '</pre>')
+    return response
+
+
+
+from django.contrib.auth.decorators import login_required
+@login_required
+def mark_order_delivered(request, order_id):
+    order = get_object_or_404(Order, pk=order_id)
+    order.status = 'Delivered'
+    order.save()
+    messages.success(request, f'Order {order.id} marked as Delivered.')
+    return redirect('orders_list', store_id=order.store.id)
+
 
 def create_notification(user, message, notif_type='INFO'):
     Notification.objects.create(
@@ -72,7 +106,7 @@ def add_product(request, store_id):
             if request.user.is_authenticated:
                 create_notification(
                     request.user, 
-                    f'Product "{product.name}" added successfully to {store.store_name}.', 
+                    f'Product "{product.name}" added successfully to {store.name}.', 
                     'SUCCESS'
                 )
             messages.success(request, 'Product added successfully!')
@@ -188,7 +222,7 @@ def create_order(request, store_id):
         for manager in Profile.objects.filter(store=store, role='MANAGER'):
             create_notification(
                 manager.user,
-                f'New order created for {client_name} at {store.store_name}.',
+                f'New order created for {client_name} at {store.name}.',
                 'INFO'
             )
         return redirect(reverse('core:orders_list', args=[store.id]))

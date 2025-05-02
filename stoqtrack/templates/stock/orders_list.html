@@ -18,35 +18,46 @@
     <table class="w-full table-auto border-collapse">
         <thead>
             <tr class="bg-gray-200">
-                <th class="border p-2">#</th>
-                <th class="border p-2">Client</th>
-                <th class="border p-2">Phone</th>
-                <th class="border p-2">Total</th>
-                <th class="border p-2">Date</th>
-                <th class="border p-2">Actions</th>
+                <th class="border p-2 text-left">#</th>
+                <th class="border p-2 text-left">Client</th>
+                <th class="border p-2 text-left">Phone</th>
+                <th class="border p-2 text-left">Total</th>
+                <th class="border p-2 text-left">Status</th>
+                <th class="border p-2 text-left">Date</th>
+                <th class="border p-2 text-left">Actions</th>
             </tr>
         </thead>
         <tbody>
             {% for order in orders %}
-            <tr class="bg-white hover:bg-gray-50">
-                <td class="border p-2">{{ forloop.counter }}</td>
-                <td class="border p-2">{{ order.client_name }}</td>
-                <td class="border p-2">{{ order.client_phone }}</td>
-                <td class="border p-2">{{ order.total_amount }} FCFA</td>
-                <td class="border p-2">{{ order.created_at|date:"d/m/Y H:i" }}</td>
-                <td class="border p-2 flex gap-2">
-                    <a href="{% url 'order_detail' pk=order.id %}" 
-                       class="bg-indigo-500 hover:bg-indigo-600 text-white px-2 py-1 rounded">
-                       Voir +
-                    </a>
-                </td>
-            </tr>
+                <tr class="bg-white hover:bg-gray-50">
+                    <td class="border p-2">{{ forloop.counter }}</td>
+                    <td class="border p-2">{{ order.client_name }}</td>
+                    <td class="border p-2">{{ order.client_phone }}</td>
+                    <td class="border p-2">{{ order.total_amount }} FCFA</td>
+                    <td class="border p-2">
+                        {% if order.status == 'Pending' %}
+                            <span class="text-yellow-500">En attente</span>
+                        {% elif order.status == 'Delivered' %}
+                            <span class="text-green-500">Livrée</span>  
+                        {% elif order.status == 'Cancelled' %}
+                            <span class="text-red-500">Annulée</span>
+                        {% endif %}
+                    </td>
+                    <td class="border p-2">{{ order.created_at|date:"d/m/Y H:i" }}</td>
+                    <td class="border p-2 text-center">
+                        <a href="{% url 'order_detail' pk=order.id %}" 
+                           class="bg-indigo-500 hover:bg-indigo-600 text-white px-3 py-2 rounded transition duration-300">
+                           Voir +
+                        </a>
+                    </td>
+                </tr>
             {% empty %}
-            <tr>
-                <td colspan="6" class="border p-4 text-center text-gray-500">Pas de commandes disponible</td>
-            </tr>
+                <tr>
+                    <td colspan="7" class="border p-4 text-center text-gray-500">Pas de commandes disponible</td>
+                </tr>
             {% endfor %}
         </tbody>
     </table>
+    
 </div>
 {% endblock %}

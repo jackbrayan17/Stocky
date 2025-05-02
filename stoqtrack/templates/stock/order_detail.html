@@ -46,6 +46,23 @@
         </ul>
 
         <p class="text-lg font-bold mt-6">Total Amount: <span>{{ order.total_amount }}</span> FCFA</p>
+        <a href="{% url 'download_order_pdf' order.id %}" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded flex items-center space-x-2">
+            <i class="fas fa-download"></i>
+            <span>Download PDF</span>
+        </a>
+
+        {% if order.status != 'Delivered' %}
+        <!-- Mark as Delivered Button -->
+        <a href="{% url 'mark_order_delivered' order.id %}" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded flex items-center space-x-2 mt-2">
+            <i class="fas fa-check-circle"></i>
+            <span>Mark as Delivered</span>
+        </a>
+        {% else %}
+        <span class="bg-green-500 text-white px-4 py-2 rounded mt-2 flex items-center space-x-2">
+            <i class="fas fa-check-circle"></i>
+            <span>Delivered</span>
+        </span>
+        {% endif %}
     </div>
 
     <a href="{% url 'orders_list' order.store.id %}" class="text-blue-500">Back to Orders List</a>
