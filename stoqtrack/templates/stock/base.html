@@ -37,12 +37,11 @@
                     <li class="relative">
                         <a class="md:p-4 py-2 block hover:text-gray-300" href="/notifications">
                             <i class="fas fa-bell"></i>
-                            <!-- Badge for unread notifications -->
-                            {% if unread_notifications_count > 0 %}
+                             {% if unread_notifications_count > 0 %}
                             <span class="absolute top-1 right-1 inline-flex items-center justify-center w-4 h-4 text-xs font-bold leading-none text-white bg-red-600 rounded-full animate-pulse">
                                 {{ unread_notifications_count }}
                             </span>
-                        {% endif %}
+                            {% endif %}
                         
                         </a>
                     </li>

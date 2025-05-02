@@ -38,12 +38,25 @@
 
     <!-- Notifications Container -->
     <div class="container mx-auto mt-8 px-4 md:px-0">
-        <h2 class="text-3xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-            📣 Notifications
-        </h2>
 
+        <!-- Header with total and new count -->
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-3xl font-bold text-gray-800 flex items-center gap-2">
+                📣 Notifications
+            </h2>
+            <div class="text-right">
+                <p class="text-gray-700 text-lg">
+                    Total: {{ notifications.count }} 
+                    {% if unread_notifications_count > 0 %}
+                    <span class="text-red-300 font-semibold">+{{ unread_notifications_count }}</span>
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+
+        <!-- List of Notifications -->
         {% for notif in notifications %}
-        <div class="bg-white rounded-xl shadow-md p-4 mb-4 flex items-start gap-4 hover:shadow-lg transition duration-300">
+        <div class="{% if not notif.is_read %}bg-emerald-400 border border-emerald-300{% else %}bg-emerald-50{% endif %} rounded-xl shadow-md p-4 mb-4 flex items-start gap-4 hover:shadow-lg transition duration-300">
             <div class="flex-shrink-0">
                 {% if notif.notif_type == 'LOW_STOCK' %}
                     <i class="fas fa-box-open fa-2x text-red-600"></i>
@@ -60,7 +73,7 @@
                 {% endif %}
             </div>
             <div class="flex-1">
-                <p class="text-gray-800 font-medium mb-1">{{ notif.message }}</p>
+                <p class="{% if not notif.is_read %}text-gray-900 font-semibold{% else %}text-gray-800{% endif %} mb-1">{{ notif.message }}</p>
                 <small class="text-gray-500">{{ notif.created_at|timesince }} ago</small>
             </div>
         </div>
@@ -69,6 +82,7 @@
             <p class="text-gray-600 text-lg">✅ No notifications for now. You're all caught up!</p>
         </div>
         {% endfor %}
+
     </div>
 
     <!-- Footer -->
@@ -84,5 +98,6 @@
             menu.classList.toggle("hidden");
         }
     </script>
+
 </body>
 </html>

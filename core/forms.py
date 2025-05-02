@@ -111,3 +111,27 @@ class CreateOrderForm(forms.Form):
             if quantity and product.quantity < quantity:
                 self.add_error(f'quantity_{product.id}', f'Not enough stock for {product.name}.')
         return cleaned_data
+    
+from django import forms
+from .models import Store, Location
+
+class StoreAdminForm(forms.ModelForm):
+    class Meta:
+        model = Store
+        fields = '__all__'
+
+    def __init__(self, *args, **kwargs):
+        super(StoreAdminForm, self).__init__(*args, **kwargs)
+
+        # Initially, empty town choices
+        self.fields['town'].queryset = Location.objects.none()
+
+        if 'country' in self.data:
+            try:
+                country = self.data.get('country')
+                self.fields['town'].queryset = Location.objects.filter(country=country).order_by('town')
+            except (ValueError, TypeError):
+                pass
+        elif self.instance.pk:
+            country = self.instance.country
+            self.fields['town'].queryset = Location.objects.filter(country=country).order_by('town')

@@ -59,12 +59,14 @@ def create_notification(user, message, notif_type='INFO'):
 
 def notifications_view(request, order_id=None):
     notifications = Notification.objects.filter(user=request.user).order_by('-created_at')
+    unread_notifications_count = notifications.filter(is_read=False).count()
+    notifications.filter(is_read=False).update(is_read=True)
     order = None
     store = None
     if order_id:
         order = get_object_or_404(Order, id=order_id)
         store = order.store
-    return render(request, 'stock/notifications.html', {'notifications': notifications, 'order': order, 'store': store})
+    return render(request, 'stock/notifications.html', {'notifications': notifications, 'order': order, 'store': store, 'unread_notifications_count': unread_notifications_count})
 
 
 def suggestion_view(request):
@@ -110,7 +112,7 @@ def add_product(request, store_id):
             if request.user.is_authenticated:
                 create_notification(
                     request.user, 
-                    f'Product "{product.name}" added successfully to {store.store_name}.', 
+                    f'Product "{product.name}" added successfully to {store.store_namename}.', 
                     'SUCCESS'
                 )
             messages.success(request, 'Product added successfully!')
@@ -371,6 +373,10 @@ from django.db.models import Sum, Count, Q
 from django.utils.timezone import now
 from django.db.models.functions import TruncMonth
 
+from django.utils.timezone import now, timedelta
+from django.db.models import Sum, Count, F
+from django.db.models.functions import TruncMonth
+
 def home_view(request):
     if request.user.profile.role == 'ADMIN':
         return redirect('/admin')
@@ -479,7 +485,6 @@ def home_view(request):
     else:
         messages.error(request, "Access Denied.")
         return redirect('login')
-
 
 
 # Password reset view
