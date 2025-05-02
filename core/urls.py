@@ -20,7 +20,7 @@ urlpatterns = [
     path('store/<int:store_id>/add-product/', views.add_product, name='add_product'),
     path('product/<int:product_id>/update/', views.update_product, name='update_product'),
     path('suggestion/', views.suggestion_view, name='suggestion'),
-
+    path('notifications/', views.notifications_view, name='notifications'),
     # Order Routes
     path('store/<int:store_id>/create-order/', views.create_order, name='create_order'),
     # path('order/<int:order_id>/', views.order_detail, name='order_detail'),

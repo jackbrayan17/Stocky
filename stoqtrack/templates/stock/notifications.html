@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>📦 StockMaster Notifications</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+
+<body class="bg-gray-100 font-sans leading-normal tracking-normal flex flex-col min-h-screen">
+
+    <!-- Navbar -->
+    <nav class="bg-emerald-600 p-4 shadow-lg">
+        <div class="container mx-auto flex flex-wrap items-center justify-between">
+            <a href="/" class="text-white text-2xl font-bold">StockMaster</a>
+            <button class="text-white md:hidden focus:outline-none" onclick="toggleMenu()">
+                <i class="fas fa-bars fa-lg"></i>
+            </button>
+            <div id="menu" class="hidden w-full md:flex md:items-center md:w-auto">
+                <ul class="pt-4 text-white md:flex md:justify-between md:pt-0">
+                    <li><a class="md:p-4 py-2 block hover:text-gray-300" href="{% url 'home' %}">Dashboard</a></li>
+                    <li><a class="md:p-4 py-2 block hover:text-gray-300" href="/suggestion">Suggestions</a></li>
+                    <li class="relative">
+                        <a class="md:p-4 py-2 block hover:text-gray-300" href="/notifications">
+                            <i class="fas fa-bell fa-lg"></i>
+                            {% if unread_notifications_count > 0 %}
+                            <span class="absolute top-1 right-1 inline-flex items-center justify-center w-4 h-4 text-xs font-bold leading-none text-white bg-red-600 rounded-full animate-pulse">
+                                {{ unread_notifications_count }}
+                            </span>
+                            {% endif %}
+                        </a>
+                    </li>
+                    <li><a class="md:p-4 py-2 block hover:text-gray-300" href="{% url 'logout' %}">Log Out</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Notifications Container -->
+    <div class="container mx-auto mt-8 px-4 md:px-0">
+        <h2 class="text-3xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+            📣 Notifications
+        </h2>
+
+        {% for notif in notifications %}
+        <div class="bg-white rounded-xl shadow-md p-4 mb-4 flex items-start gap-4 hover:shadow-lg transition duration-300">
+            <div class="flex-shrink-0">
+                {% if notif.notif_type == 'LOW_STOCK' %}
+                    <i class="fas fa-box-open fa-2x text-red-600"></i>
+                {% elif notif.notif_type == 'TRIAL_ENDING' %}
+                    <i class="fas fa-hourglass-end fa-2x text-yellow-500"></i>
+                {% elif notif.notif_type == 'SUB_STARTED' %}
+                    <i class="fas fa-calendar-check fa-2x text-green-500"></i>
+                {% elif notif.notif_type == 'NEW_PRODUCT' %}
+                    <i class="fas fa-plus-square fa-2x text-blue-500"></i>
+                {% elif notif.notif_type == 'NEW_ORDER' %}
+                    <i class="fas fa-shopping-cart fa-2x text-emerald-600"></i>
+                {% else %}
+                    <i class="fas fa-info-circle fa-2x text-gray-500"></i>
+                {% endif %}
+            </div>
+            <div class="flex-1">
+                <p class="text-gray-800 font-medium mb-1">{{ notif.message }}</p>
+                <small class="text-gray-500">{{ notif.created_at|timesince }} ago</small>
+            </div>
+        </div>
+        {% empty %}
+        <div class="bg-white rounded-xl shadow p-6 text-center">
+            <p class="text-gray-600 text-lg">✅ No notifications for now. You're all caught up!</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-emerald-600 text-white mt-auto p-4">
+        <div class="container mx-auto text-center text-sm">
+            &copy; 2025 Stocky Place | 📞 +237 694 10 35 85 | 📧 jackbrayan1707@gmail.com
+        </div>
+    </footer>
+
+    <script>
+        function toggleMenu() {
+            var menu = document.getElementById("menu");
+            menu.classList.toggle("hidden");
+        }
+    </script>
+</body>
+</html>

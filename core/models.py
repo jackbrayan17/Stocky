@@ -77,6 +77,7 @@ class OrderItem(models.Model):
 
     def __str__(self):
         return f"{self.product.name} x {self.quantity}"
+from django.utils.timezone import now
 
 class Profile(models.Model):
     ROLE_CHOICES = (
@@ -86,9 +87,15 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='MANAGER')
     store = models.OneToOneField('Store', on_delete=models.SET_NULL, null=True, blank=True)
-
-    def __str__(self):
-        return f"{self.user.username} - {self.role}"
+    subscription_start = models.DateTimeField(null=True, blank=True)
+    subscription_end = models.DateTimeField(null=True, blank=True)
+    account_status = models.CharField(max_length=20, default='Active')  # Active, Suspended
+    
+    last_login_time = models.DateTimeField(null=True, blank=True)
+    login_count = models.IntegerField(default=0)
+    is_logged_in = models.BooleanField(default=False)
+    def is_subscription_valid(self):
+        return self.subscription_end and self.subscription_end > now()
 
 # Auto-create Profile when User is created
 @receiver(post_save, sender=User)
@@ -109,3 +116,23 @@ class Suggestion(models.Model):
 
     def __str__(self):
         return f"Suggestion from {self.name or 'Anonymous'} on {self.date_submitted.strftime('%Y-%m-%d')}"
+
+
+class Notification(models.Model):
+    NOTIF_TYPE_CHOICES = [
+        ('LOW_STOCK', 'Low Stock'),
+        ('TRIAL_ENDING', 'Trial Ending Soon'),
+        ('SUB_STARTED', 'Subscription Started'),
+        ('NEW_PRODUCT', 'New Product Added'),
+        ('NEW_ORDER', 'New Order'),
+        ('SYSTEM', 'System Message'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    notif_type = models.CharField(max_length=20, choices=NOTIF_TYPE_CHOICES)
+    message = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_read = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.notif_type} for {self.user.username}"

@@ -7,9 +7,27 @@ from .models import Store, Product, Order, OrderItem
 from django.urls import reverse
 from django.db.models import F
 from django.contrib import messages
-from .models import Profile
+from .models import Profile, Notification
 from .forms import SuggestionForm, UpdateProductForm, ManagerRegistrationForm
 from django.db.models import Q
+
+def create_notification(user, message, notif_type='INFO'):
+    Notification.objects.create(
+        user=user,
+        message=message,
+        notif_type=notif_type
+    )
+
+
+def notifications_view(request, order_id=None):
+    notifications = Notification.objects.filter(user=request.user).order_by('-created_at')
+    order = None
+    store = None
+    if order_id:
+        order = get_object_or_404(Order, id=order_id)
+        store = order.store
+    return render(request, 'stock/notifications.html', {'notifications': notifications, 'order': order, 'store': store})
+
 
 def suggestion_view(request):
     if request.method == 'POST':
@@ -51,6 +69,12 @@ def add_product(request, store_id):
             product = form.save(commit=False)
             product.store = store
             product.save()
+            if request.user.is_authenticated:
+                create_notification(
+                    request.user, 
+                    f'Product "{product.name}" added successfully to {store.name}.', 
+                    'SUCCESS'
+                )
             messages.success(request, 'Product added successfully!')
             return redirect(reverse('product_list', args=[store.id]))
     else:
@@ -90,7 +114,12 @@ def update_product(request, product_id):
             updated_product = form.save(commit=False)
             updated_product.store = store
             updated_product.save()
-
+            if request.user.is_authenticated:
+                create_notification(
+                    request.user, 
+                    f'Product "{updated_product.name}" was updated in {store.store_name}.', 
+                    'INFO'
+                )
             messages.success(request, 'Product updated successfully!')
             return redirect(reverse('product_list', args=[store.id]))
 
@@ -146,11 +175,22 @@ def create_order(request, store_id):
 
                 # Add to total
                 order_total += product.price * quantity
-
+                if product.quantity <= product.alert_threshold:
+                    for manager in Profile.objects.filter(store=store, role='MANAGER'):
+                        create_notification(
+                            manager.user,
+                            f'Product "{product.name}" stock is low: {product.quantity} remaining.',
+                            'WARNING'
+                        )
         # Update order total
         order.total_amount = order_total
         order.save()
-
+        for manager in Profile.objects.filter(store=store, role='MANAGER'):
+            create_notification(
+                manager.user,
+                f'New order created for {client_name} at {store.name}.',
+                'INFO'
+            )
         return redirect(reverse('core:orders_list', args=[store.id]))
 
     context = {
@@ -211,6 +251,8 @@ def admin_dashboard(request):
     return render(request, 'stock/admin_dashboard.html', {'stores': stores})
 from django.contrib.auth.models import Group
 # Register view
+from django.utils.timezone import now, timedelta
+
 def register_view(request):
     if request.method == 'POST':
         form = ManagerRegistrationForm(request.POST)
@@ -218,39 +260,75 @@ def register_view(request):
             user = form.save()
             store = form.cleaned_data['store']
 
-            # Set user profile role and store
             profile = user.profile
             profile.role = 'MANAGER'
             profile.store = store
+            profile.subscription_start = now()
+            profile.subscription_end = now() + timedelta(days=30)
             profile.save()
 
-            # Add user to Manager group (create it if missing)
             manager_group, created = Group.objects.get_or_create(name='Manager')
             user.groups.add(manager_group)
 
-            messages.success(request, 'Manager registered successfully!')
+            messages.success(request, 'Manager registered successfully! Free Trial activated 🎉')
             return redirect('login')
     else:
         form = ManagerRegistrationForm()
 
     return render(request, 'stock/register.html', {'form': form})
 
+
+from django.utils.timezone import now
+from django.contrib.auth import logout
+
+from django.utils.timezone import now
+
 def login_view(request):
     if request.method == 'POST':
         form = AuthenticationForm(data=request.POST)
         if form.is_valid():
             user = form.get_user()
-            user_profile = user.profile
+            profile = user.profile
+
+            # Check if user has a subscription_end date
+            if profile.subscription_end:
+                if profile.subscription_end < now():
+                    # Subscription expired, deactivate account
+                    user.is_active = False
+                    user.save()
+                    messages.error(request, 'Your free trial has ended. Please renew your subscription to access your account.')
+                    return redirect('login')
+            else:
+                # If no subscription_end date, give them 1 month from now (on first login or registration)
+                profile.subscription_start = now()
+                profile.subscription_end = now() + timedelta(days=30)
+                profile.save()
+
+            # Log them in
             login(request, user)
+
+            # Track session data
+            profile.last_login_time = now()
+            profile.login_count = (profile.login_count or 0) + 1
+            profile.save()
+
             return redirect('home')
     else:
         form = AuthenticationForm()
     return render(request, 'stock/login.html', {'form': form})
 
+
 # Logout view
 def logout_view(request):
+    if request.user.is_authenticated:
+        profile = request.user.profile
+        profile.is_logged_in = False
+        profile.save()
+
     logout(request)
     return redirect('login')
+
+
 from django.db.models import Sum, Count, Q
 from django.utils.timezone import now
 from django.db.models.functions import TruncMonth
@@ -286,7 +364,7 @@ def home_view(request):
             .annotate(total=Count('id'))
             .order_by('month')
         )
-
+        subscription_end = request.user.profile.subscription_end
         return render(request, 'stock/home.html', {
             'store': store,
             'top_products': top_products,
@@ -295,7 +373,8 @@ def home_view(request):
             'low_stock_count': low_stock_count,
             'total_revenue': total_revenue,
             'total_orders': total_orders,
-            'orders_per_month': orders_per_month
+            'orders_per_month': orders_per_month,
+            'subscription_end': subscription_end
         })
     else:
         messages.error(request, "Access Denied.")

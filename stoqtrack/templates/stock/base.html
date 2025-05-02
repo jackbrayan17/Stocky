@@ -5,6 +5,18 @@
     <title>Stock Management</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        .notification-badge {
+            height: 8px;
+            width: 8px;
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            background-color: #dc2626;
+            border-radius: 50%;
+        }
+    </style>
+    
 </head>
 
 <body class="bg-gray-100 font-sans leading-normal tracking-normal flex flex-col min-h-screen">
@@ -22,6 +34,18 @@
                     <li><a class="md:p-4 py-2 block hover:text-gray-300" href="{% url 'product_list' store.id %}">Produits</a></li>
                     <li><a class="md:p-4 py-2 block hover:text-gray-300" href="{% url 'orders_list' store.id %}">Commandes</a></li>
                     <li><a class="md:p-4 py-2 block hover:text-gray-300" href="/suggestion">Boite a Suggestion</a></li>
+                    <li class="relative">
+                        <a class="md:p-4 py-2 block hover:text-gray-300" href="/notifications">
+                            <i class="fas fa-bell"></i>
+                            <!-- Badge for unread notifications -->
+                            {% if unread_notifications_count > 0 %}
+                            <span class="absolute top-1 right-1 inline-flex items-center justify-center w-4 h-4 text-xs font-bold leading-none text-white bg-red-600 rounded-full animate-pulse">
+                                {{ unread_notifications_count }}
+                            </span>
+                        {% endif %}
+                        
+                        </a>
+                    </li>
                     <li><a class="md:p-4 py-2 block hover:text-gray-300" href="{% url 'logout' %}">Log Out</a></li>
 
                 </ul>

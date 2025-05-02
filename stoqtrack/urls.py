@@ -13,8 +13,9 @@ urlpatterns = [
     path('suggestion/', views.suggestion_view, name='suggestion'),
     # Admin Route
     path('admin/', admin.site.urls),
-
-    # Product Management Routes
+    path('notifications/', views.notifications_view, name='notifications'),
+  path('notifications/<int:order_id>/', views.notifications_view, name='notifications_with_order'),
+# Product Management Routes
     path('store/<int:store_id>/products/', views.product_list, name='product_list'),
     path('store/<int:store_id>/add-product/', views.add_product, name='add_product'),
     path('product/<int:product_id>/update/', views.update_product, name='update_product'),
