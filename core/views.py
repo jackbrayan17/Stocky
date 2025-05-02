@@ -394,15 +394,70 @@ def home_view(request):
         # Total orders
         total_orders = Order.objects.filter(store=store).count()
         total_products = Product.objects.filter(store=store).count()
+        # Orders in the last 24h
+        now_time = now()
+        last_24h_orders = Order.objects.filter(
+            store=store,
+            created_at__gte=now_time - timedelta(hours=24)
+        ).count()
+
+        # Orders in the previous 24h (24h-48h ago)
+        previous_24h_orders = Order.objects.filter(
+            store=store,
+            created_at__gte=now_time - timedelta(hours=48),
+            created_at__lt=now_time - timedelta(hours=24)
+        ).count()
+
+        # Difference calculation
+        orders_diff = last_24h_orders - previous_24h_orders
+       # Products in the last 24h
+        last_24h_products = Product.objects.filter(
+            store=store,
+            created_at__gte=now_time - timedelta(hours=24)
+        ).count()
+
+        # Products in the previous 24h
+        previous_24h_products = Product.objects.filter(
+            store=store,
+            created_at__gte=now_time - timedelta(hours=48),
+            created_at__lt=now_time - timedelta(hours=24)
+        ).count()
+
+        # Difference and trend
+        products_diff = last_24h_products - previous_24h_products
+        products_increase = products_diff >= 0
+
+
+        # Revenue in the last 24h
+        last_24h_revenue = Order.objects.filter(
+            store=store,
+            created_at__gte=now_time - timedelta(hours=24)
+        ).aggregate(Sum('total_amount'))['total_amount__sum'] or 0
+
+        # Revenue in the previous 24h
+        previous_24h_revenue = Order.objects.filter(
+            store=store,
+            created_at__gte=now_time - timedelta(hours=48),
+            created_at__lt=now_time - timedelta(hours=24)
+        ).aggregate(Sum('total_amount'))['total_amount__sum'] or 0
+
+        # Difference and trend
+        revenue_diff = last_24h_revenue - previous_24h_revenue
+        revenue_increase = revenue_diff >= 0
+
+        is_increase = orders_diff >= 0
+
         # Orders evolution over last 12 months
         orders_per_month = (
-            Order.objects.filter(store=store, created_at__year=now().year)
+            Order.objects.filter(store=store, created_at__year=now_time.year)
             .annotate(month=TruncMonth('created_at'))
             .values('month')
             .annotate(total=Count('id'))
             .order_by('month')
         )
+
         subscription_end = request.user.profile.subscription_end
+
         return render(request, 'stock/home.html', {
             'store': store,
             'top_products': top_products,
@@ -412,7 +467,14 @@ def home_view(request):
             'total_revenue': total_revenue,
             'total_orders': total_orders,
             'orders_per_month': orders_per_month,
-            'subscription_end': subscription_end
+            'subscription_end': subscription_end,
+            'last_24h_orders': last_24h_orders,
+            'orders_diff': abs(orders_diff),
+            'is_increase': is_increase,
+            'products_diff': abs(products_diff),
+            'products_increase': products_increase,
+            'revenue_diff': abs(revenue_diff),
+            'revenue_increase': revenue_increase,
         })
     else:
         messages.error(request, "Access Denied.")
