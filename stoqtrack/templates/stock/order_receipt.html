@@ -70,24 +70,28 @@
     <h1>Order Receipt</h1>
 
     <div class="info">
-      <p><strong>Order ID:</strong> {{ order.id }}</p>
-      <p><strong>Client:</strong> {{ order.customer_name }}</p>
+      <p><strong>Nom Client :</strong> {{ order.client_name }}</p>
+        <p><strong>Numero Client:</strong>+237 {{ order.client_phone }}</p>
+      <p><strong>Date de Commande:</strong> {{ order.created_at }}</p>
+        <p><strong>Boutique:</strong> {{ order.store.store_name }}</p>
+        <p><strong>Addresse Boutique:</strong> {{ order.store.quarter }}, {{ order.store.town }}</p>
     </div>
 
     <div class="items">
       {% for item in order.items.all %}
       <div class="item">
-        <p><strong>Product:</strong> {{ item.product_name }}</p>
-        <p><strong>Quantity:</strong> {{ item.quantity }}</p>
-        <p><strong>Price:</strong> {{ item.price }} FCFA</p>
-      </div>
+        <p>***********************************************************************************************************************************</p>
+        <p><strong>Produit :</strong> {{ item.product.name }}</p>
+        <p><strong>Quantite :</strong> {{ item.quantity }}</p>
+        <p><strong>Prix :</strong> {{ item.product.price }} FCFA</p>
+    </div>
       {% endfor %}
     </div>
 
     <p class="total">Total: {{ order.total_amount }} FCFA</p>
 
     <div class="footer">
-      <p>Thank you for your order 🙏</p>
+      <p>Merci pour votre commande ! </p>
     </div>
   </body>
 </html>
