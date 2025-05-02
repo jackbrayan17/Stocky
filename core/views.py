@@ -28,7 +28,11 @@ def download_order_pdf(request, order_id):
     response['Content-Disposition'] = f'attachment; filename="Order_{order.id}.pdf"'
 
     pisa_status = pisa.CreatePDF(html, dest=response)
-
+    create_notification(
+                    request.user, 
+                    f'New Order for "{order.client_name}" printed successfully.', 
+                    'SUCCESS'
+                )
     if pisa_status.err:
         return HttpResponse('We had some errors <pre>' + html + '</pre>')
     return response
