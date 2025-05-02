@@ -226,7 +226,7 @@ def create_order(request, store_id):
         for manager in Profile.objects.filter(store=store, role='MANAGER'):
             create_notification(
                 manager.user,
-                f'New order created for {client_name} at {store.name}.',
+                f'New order created for {client_name} at {store.store_name}.',
                 'INFO'
             )
         return redirect(reverse('core:orders_list', args=[store.id]))
