@@ -10,31 +10,65 @@
     <!-- Conteneur en colonne -->
     <div class="flex flex-col gap-6 mb-8">
 
-        <!-- Carte Total Revenue -->
-        <div class="bg-white rounded-2xl shadow-lg p-6 flex items-center space-x-4">
-            <i class="fas fa-coins text-4xl text-emerald-500"></i>
-            <div>
-                <h2 class="text-lg font-semibold text-gray-600">Chiffre d'Affaires Total</h2>
-                <p class="text-2xl font-bold text-emerald-700">{{ total_revenue }} FCFA</p>
-            </div>
-        </div>
-
-        <!-- Carte Total Orders -->
-        <div class="bg-white rounded-2xl shadow-lg p-6 flex items-center space-x-4">
-            <i class="fas fa-shopping-cart text-4xl text-emerald-500"></i>
-            <div>
-                <h2 class="text-lg font-semibold text-gray-600">Commandes Totales</h2>
-                <p class="text-2xl font-bold text-emerald-700">{{ total_orders }}</p>
-            </div>
-        </div>
-        <!-- Carte Total Produits -->
-<div class="bg-white rounded-2xl shadow-lg p-6 flex items-center space-x-4">
-    <i class="fas fa-boxes text-4xl text-emerald-500"></i>
-    <div>
-        <h2 class="text-lg font-semibold text-gray-600">Produits Référencés</h2>
-        <p class="text-2xl font-bold text-emerald-700">{{ total_products }}</p>
-    </div>
-</div>
+        
+        <div class="bg-white shadow-lg rounded-2xl p-6 mb-6 transition transform duration-300 hover:scale-105 hover:shadow-2xl">
+            <h5 class="text-gray-700 text-lg font-semibold mb-2 flex items-center">
+              <i class="fas fa-coins mr-2 text-emerald-600"></i> Chiffre d'Affaires Total
+            </h5>
+            <h3 class="text-3xl font-bold text-gray-900 mb-4">{{ total_revenue|floatformat:2 }} FCFA</h3>
+            <p class="text-sm flex items-center">
+              {% if revenue_increase %}
+                <span class="text-green-600 flex items-center">
+                  <i class="fas fa-arrow-up mr-1"></i> +{{ revenue_diff|floatformat:2 }} FCFA il y'a 24h
+                </span>
+              {% else %}
+                <span class="text-red-600 flex items-center">
+                  <i class="fas fa-arrow-down mr-1"></i> -{{ revenue_diff|floatformat:2 }} FCFA il y'a 24h
+                </span>
+              {% endif %}
+            </p>
+          </div>
+        
+<div class="bg-white shadow-lg rounded-2xl p-6 mb-6 transition-all duration-300 hover:shadow-2xl">
+    <h5 class="text-gray-700 text-lg font-semibold mb-2 flex items-center">
+      <i class="fas fa-shopping-cart mr-2 text-emerald-600"></i> Commandes Totales
+    </h5>
+    <h3 class="text-3xl font-bold text-gray-900 mb-4">{{ total_orders }}</h3>
+    <p class="text-sm flex items-center">
+      {% if is_increase %}
+        <span class="text-green-600 flex items-center">
+          <i class="fas fa-arrow-up mr-1"></i> +{{ orders_diff }} il y'a 24h
+        </span>
+      {% else %}
+        <span class="text-red-600 flex items-center">
+          <i class="fas fa-arrow-down mr-1"></i> -{{ orders_diff }} il y'a 24h
+        </span>
+      {% endif %}
+    </p>
+  </div>
+  
+  
+  <div class="bg-white shadow-lg rounded-2xl p-6 mb-6 transition transform duration-300 hover:scale-105 hover:shadow-2xl">
+    <h5 class="text-gray-700 text-lg font-semibold mb-2 flex items-center">
+      <i class="fas fa-boxes mr-2 text-emerald-600"></i> Produits Référencés
+    </h5>
+    <h3 class="text-3xl font-bold text-gray-900 mb-4">{{ total_products }}</h3>
+    <p class="text-sm flex items-center">
+      {% if products_increase %}
+        <span class="text-green-600 flex items-center">
+          <i class="fas fa-arrow-up mr-1"></i> +{{ products_diff }} il y'a 24h
+        </span>
+      {% else %}
+        <span class="text-red-600 flex items-center">
+          <i class="fas fa-arrow-down mr-1"></i> -{{ products_diff }} il y'a 24h
+        </span>
+      {% endif %}
+    </p>
+  </div>
+  
+  
+  
+  
 
         <!-- Carte Top Produits -->
         <div class="bg-white rounded-2xl shadow-lg p-6">
