@@ -28,46 +28,62 @@
     </nav>
 
     <div class="container mx-auto px-4 flex-grow">
-      
-<div class="max-w-2xl mx-auto mt-10">
-    <h2 class="text-3xl font-bold text-center mb-6">Order Details</h2>
+        <div class="max-w-2xl mx-auto mt-10">
+            <h2 class="text-3xl font-bold text-center mb-6">Order Details</h2>
 
-    <div class="order-details border p-4 rounded mb-4">
-        <h3 class="text-xl font-bold">Order ID: {{ order.id }}</h3>
-        <p><strong>Client Name:</strong> {{ order.client_name }}</p>
-        <p><strong>Client Phone:</strong> {{ order.client_phone }}</p>
-        <p><strong>Order Date:</strong> {{ order.created_at }}</p>
+            <div class="order-details border p-4 rounded mb-4">
+                <h3 class="text-xl font-bold">Order ID: {{ order.id }}</h3>
+                <p><strong>Client Name:</strong> {{ order.client_name }}</p>
+                <p><strong>Client Phone:</strong> {{ order.client_phone }}</p>
+                <p><strong>Order Date:</strong> {{ order.created_at }}</p>
 
-        <h4 class="text-lg font-bold mt-4">Ordered Items</h4>
-        <ul>
-            {% for item in order.items.all %}
-                <li>{{ item.product.name }} - Quantity: {{ item.quantity }} - Price: {{ item.product.price }} FCFA</li>
-            {% endfor %}
-        </ul>
+                <h4 class="text-lg font-bold mt-4">Ordered Items</h4>
+                <ul>
+                    {% for item in order.items.all %}
+                        <li>{{ item.product.name }} - Quantity: {{ item.quantity }} - Price: {{ item.product.price }} FCFA</li>
+                    {% endfor %}
+                </ul>
 
-        <p class="text-lg font-bold mt-6">Total Amount: <span>{{ order.total_amount }}</span> FCFA</p>
-        <a href="{% url 'download_order_pdf' order.id %}" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded flex items-center space-x-2">
-            <i class="fas fa-download"></i>
-            <span>Download PDF</span>
-        </a>
+                <p class="text-lg font-bold mt-6">Total Amount: <span>{{ order.total_amount }}</span> FCFA</p>
+                <a href="{% url 'download_order_pdf' order.id %}" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded flex items-center space-x-2" onclick="showPopup()">
+                    <i class="fas fa-download"></i>
+                    <span>Download PDF</span>
+                </a>
 
-        {% if order.status != 'Delivered' %}
-        <!-- Mark as Delivered Button -->
-        <a href="{% url 'mark_order_delivered' order.id %}" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded flex items-center space-x-2 mt-2">
-            <i class="fas fa-check-circle"></i>
-            <span>Mark as Delivered</span>
-        </a>
-        {% else %}
-        <span class="bg-green-500 text-white px-4 py-2 rounded mt-2 flex items-center space-x-2">
-            <i class="fas fa-check-circle"></i>
-            <span>Delivered</span>
-        </span>
-        {% endif %}
+                {% if order.status != 'Delivered' %}
+                <!-- Mark as Delivered Button -->
+                <a href="{% url 'mark_order_delivered' order.id %}" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded flex items-center space-x-2 mt-2">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Mark as Delivered</span>
+                </a>
+                {% else %}
+                <span class="bg-green-500 text-white px-4 py-2 rounded mt-2 flex items-center space-x-2">
+                    <i class="fas fa-check-circle"></i>
+                    <span>Delivered</span>
+                </span>
+                {% endif %}
+            </div>
+
+            <a href="{% url 'orders_list' order.store.id %}" class="text-blue-500">Back to Orders List</a>
+        </div>
     </div>
 
-    <a href="{% url 'orders_list' order.store.id %}" class="text-blue-500">Back to Orders List</a>
-</div>
-</div>
+    <!-- Popup Notification -->
+    <div id="popup" class="fixed left-4 bottom-20 bg-gradient-to-r from-green-400 via-teal-500 to-blue-500 text-white p-4 rounded-lg shadow-lg flex items-center space-x-3 w-full sm:w-auto max-w-xs hidden">
+        <i class="fas fa-file-pdf text-3xl"></i>
+        <div>
+            <h3 class="text-xl font-bold">Downloading PDF...</h3>
+            <p class="text-sm">Your PDF is being generated and will be available soon!</p>
+        </div>
+    </div>
+
+    <!-- Close Button at the Bottom -->
+    <!-- <div id="close-popup" class="bottom-0 left-0 w-full bg-gray-900 text-white p-2 text-center hidden">
+        <button onclick="closePopup()" class="text-lg">
+            <i class="fas fa-times"></i> Close Notification
+        </button>
+    </div> -->
+
     <!-- Footer -->
     <footer class="bg-emerald-600 text-white mt-10 p-4">
         <div class="container mx-auto text-center">
@@ -79,6 +95,29 @@
         function toggleMenu() {
             var menu = document.getElementById("menu");
             menu.classList.toggle("hidden");
+        }
+
+        // Show the popup when download button is clicked
+        function showPopup() {
+            var popup = document.getElementById("popup");
+            var closeButton = document.getElementById("close-popup");
+
+            popup.classList.remove("hidden");
+            closeButton.classList.remove("hidden");
+
+            // Optionally hide the popup after 5 seconds
+            setTimeout(function() {
+                closePopup();
+            }, 5000);
+        }
+
+        // Close the popup when the close button is clicked
+        function closePopup() {
+            var popup = document.getElementById("popup");
+            var closeButton = document.getElementById("close-popup");
+
+            popup.classList.add("hidden");
+            closeButton.classList.add("hidden");
         }
     </script>
 </body>
