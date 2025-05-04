@@ -22,6 +22,7 @@ class Store(models.Model):
     longitude = models.FloatField(null=True, blank=True)
     store_code = models.CharField(max_length=7, unique=True, default=generate_store_code)
     is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True, null=True)
 
     def __str__(self):
         return f"{self.store_name} ({self.store_code})"

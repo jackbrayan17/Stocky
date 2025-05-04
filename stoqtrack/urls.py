@@ -28,10 +28,10 @@ urlpatterns = [
     # path('orders-list/', views.orders_list, name='orders_list'),
      path('orders/<int:pk>/', views.OrderDetailView.as_view(), name='order_detail'),
     # Additional Pages
-
+  path('suspend-manager/<int:store_id>/', views.suspend_manager, name='suspend_manager'),
     path('store/<int:store_id>/sales-report/', views.sales_report, name='sales_report'),
     path('store/<int:store_id>/orders-list/', views.orders_list, name='orders_list'),
     path('stock-alert-dashboard/', views.stock_alert_dashboard, name='stock_alert_dashboard'),
     path('store/<int:store_id>/profile/', views.store_profile, name='store_profile'),
-    path('admin-dashboard/', views.admin_dashboard, name='admin_dashboard'),
+    path('admin-dashboard/', views.admin_dashboard, name='admin-dashboard'),
 ]

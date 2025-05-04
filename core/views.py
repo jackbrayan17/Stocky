@@ -14,6 +14,7 @@ from django.http import HttpResponse
 from django.template.loader import get_template
 from xhtml2pdf import pisa
 import io
+from django.db.models.functions import TruncDay, TruncMonth, TruncYear
 
 from django.http import HttpResponse
 # from reportlab.pdfgen import canvas
@@ -112,7 +113,7 @@ def add_product(request, store_id):
             if request.user.is_authenticated:
                 create_notification(
                     request.user, 
-                    f'Product "{product.name}" added successfully to {store.store_name}.', 
+                    f'Product "{product.name}" added successfully to {store.store_namename}.', 
                     'SUCCESS'
                 )
             messages.success(request, 'Product added successfully!')
@@ -285,10 +286,103 @@ def store_profile(request, store_id):
     store = get_object_or_404(Store, id=store_id)
     return render(request, 'stock/store_profile.html', {'store': store})
 
+def suspend_manager(request, store_id):
+    store = get_object_or_404(Store, id=store_id)
+    store.is_active = False
+    store.save()
+    # Notify the manager about the suspension
+    for manager in Profile.objects.filter(store=store, role='MANAGER'):
+        create_notification(
+            manager.user,
+            f'Store {store.store_name} has been suspended.',
+            'WARNING'
+        )
+    # Notify the admin about the suspension
+    create_notification(
+        request.user,
+        f'Store {store.store_name} has been suspended.',
+        'WARNING'
+    )
+    messages.success(request, f"Manager for store {store.store_name} has been suspended.")
+    return redirect('admin_dashboard') 
+
 # Admin dashboard (list stores and manage them)
+from django.db.models import Count, Sum
+from django.utils.timezone import now, timedelta
+from django.contrib.auth.decorators import login_required
+from django.db.models.functions import TruncWeek
+
+@login_required
 def admin_dashboard(request):
-    stores = Store.objects.all()
-    return render(request, 'stock/admin_dashboard.html', {'stores': stores})
+    current_time = now()
+    day_ago = current_time - timedelta(hours=24)
+
+    total_stores = Store.objects.count()
+    new_stores_last_24h = Store.objects.filter(created_at__gte=day_ago).count()
+
+    total_orders = Order.objects.count()
+    new_orders_last_24h = Order.objects.filter(created_at__gte=day_ago).count()
+
+    category_orders = (
+        OrderItem.objects.values('product__category__name')
+        .annotate(total=Count('id'))
+        .order_by('-total')
+    )
+    print(category_orders)
+
+    managers = Profile.objects.filter(role='MANAGER')
+
+    weekly_orders = (
+        Order.objects.annotate(week=TruncWeek('created_at'))
+        .values('week')
+        .annotate(total=Count('id'))
+        .order_by('week')
+    )
+    print(weekly_orders)
+
+    top_stores = (
+        Order.objects.values('store__store_name')
+        .annotate(order_count=Count('id'))
+        .order_by('-order_count')[:10]
+    )
+    print(top_stores)
+
+    top_products = (
+        OrderItem.objects.values(
+            'product__name',
+            'product__category__name',
+            'product__store__store_name'
+        )
+        .annotate(total_ordered=Sum('quantity'))
+        .order_by('-total_ordered')[:10]
+    )
+    print(top_products)
+    # Get the top 10 products sold in the last 30 days  
+    top_products_last_30_days = (
+        OrderItem.objects.filter(order__created_at__gte=day_ago)
+        .values('product__name', 'product__category__name', 'product__store__store_name')
+        .annotate(total_ordered=Sum('quantity'))
+        .order_by('-total_ordered')[:10]
+    )
+    print(top_products_last_30_days)
+    notifications = Notification.objects.filter(user=request.user).order_by('-created_at')
+    unread_notifications_count = notifications.filter(is_read=False).count()
+    context = {
+        'total_stores': total_stores,
+        'new_stores_last_24h': new_stores_last_24h,
+        'total_orders': total_orders,
+        'new_orders_last_24h': new_orders_last_24h,
+        'category_orders': category_orders,
+        'managers': managers,
+        'weekly_orders': weekly_orders,
+        'top_stores': top_stores,
+        'top_products': top_products,
+    }
+
+    return render(request, 'stock/admin_dashboard.html', context)
+
+
+
 from django.contrib.auth.models import Group
 # Register view
 from django.utils.timezone import now, timedelta
@@ -351,7 +445,8 @@ def login_view(request):
             profile.last_login_time = now()
             profile.login_count = (profile.login_count or 0) + 1
             profile.save()
-
+            if user.is_superuser:
+                return redirect('admin-dashboard')
             return redirect('home')
     else:
         form = AuthenticationForm()
