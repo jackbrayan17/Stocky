@@ -331,7 +331,7 @@ def admin_dashboard(request):
     print(category_orders)
 
     managers = Profile.objects.filter(role='MANAGER')
-
+    print(managers)
     weekly_orders = (
         Order.objects.annotate(week=TruncWeek('created_at'))
         .values('week')
@@ -471,7 +471,7 @@ from django.db.models.functions import TruncMonth
 from django.utils.timezone import now, timedelta
 from django.db.models import Sum, Count, F
 from django.db.models.functions import TruncMonth
-
+from django.db.models.functions import Coalesce
 def home_view(request):
     if request.user.profile.role == 'ADMIN':
         return redirect('/admin')
@@ -480,11 +480,11 @@ def home_view(request):
 
         # Top 10 most sold products
         top_products = (
-            Product.objects.filter(store=store)
-            .annotate(total_sold=Sum('orderitem__quantity'))
-            .order_by('-total_sold')[:10]
+            Product.objects.filter(store=store).annotate(total_sold=Coalesce(Sum('order_item__quantity'), 0)).order_by('-total_sold')[:10].values('name', 'total_sold')
         )
-
+        
+        # for product in top_products:
+            # print(f"{product['name']}: {product['total_sold']}")
         # Stock status counts
         in_stock_count = Product.objects.filter(store=store, quantity__gt=F('alert_threshold')).count()
         low_stock_count = Product.objects.filter(store=store, quantity__lte=F('alert_threshold')).count()
@@ -580,6 +580,12 @@ def home_view(request):
     else:
         messages.error(request, "Access Denied.")
         return redirect('login')
+
+from .models import Suggestion
+
+def suggestion_list(request):
+    suggestions = Suggestion.objects.order_by('-date_submitted')
+    return render(request, 'stock/suggestions_list.html', {'suggestions': suggestions})
 
 
 # Password reset view

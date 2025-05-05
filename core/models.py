@@ -83,7 +83,7 @@ class Location(models.Model):
 # Order Item model
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, related_name='order_item',on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
     price_at_purchase = models.DecimalField(max_digits=10, decimal_places=2, null=False, blank=True)
 
@@ -108,7 +108,8 @@ class Profile(models.Model):
     is_logged_in = models.BooleanField(default=False)
     def is_subscription_valid(self):
         return self.subscription_end and self.subscription_end > now()
-
+    def __str__(self):
+        return f"{self.user.username} - {self.role} ({self.store.store_name if self.store else 'No Store'})"
 # Auto-create Profile when User is created
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):

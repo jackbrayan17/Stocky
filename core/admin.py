@@ -3,6 +3,15 @@ from .models import Store, Product, Order, OrderItem, Profile, Location
 from django.contrib.auth.models import User
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from .forms import StoreAdminForm
+from django.contrib import admin
+from .models import Suggestion
+
+@admin.register(Suggestion)
+class SuggestionAdmin(admin.ModelAdmin):
+    list_display = ('name', 'whatsapp_number', 'message', 'date_submitted')
+    list_filter = ('date_submitted',)
+    search_fields = ('name', 'message', 'whatsapp_number')
+    ordering = ('-date_submitted',)
 
 # Inline profile editing in the admin
 class ProfileInline(admin.StackedInline):

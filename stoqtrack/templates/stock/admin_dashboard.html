@@ -17,9 +17,15 @@
     <h1 class="text-3xl font-bold text-emerald-600 mb-6">Admin Dashboard</h1>
     <a href="{% url 'admin:index' %}" class="text-emerald-600 hover:text-emerald-800">
         <i class="fas fa-tools"></i> Django Admin Panel
-      </a>
+      </a>&nbsp;&nbsp;&nbsp;
+      <a href="/dashboard/suggestions/" class="text-emerald-600 hover:text-emerald-800">
+        <i class="fas fa-lightbulb"></i> Suggestions
+      </a>&nbsp;&nbsp;&nbsp;
+      <a href="/logout" class="text-emerald-600 hover:text-emerald-800">
+        <i class="fas fa-sign-out"></i> Log Out
+      </a>&nbsp;&nbsp;&nbsp;
       <a class="md:p-4 py-2 block hover:text-gray-300" href="/notifications">
-        <i class="fas fa-bell fa-lg"></i>
+        <i class="fas fa-bell"></i>
         {% if unread_notifications_count > 0 %}
         <span class="absolute top-1 right-1 inline-flex items-center justify-center w-4 h-4 text-xs font-bold leading-none text-white bg-red-600 rounded-full animate-pulse">
             {{ unread_notifications_count }}
@@ -68,7 +74,7 @@
           <tbody>
             {% for manager in managers %}
             <tr class="border-t">
-              <td class="px-6 py-4">{{ manager.store.store_name }}</td>
+              <td class="px-6 py-4">{{ manager.store.store_name }}    </td>
               <td class="px-6 py-4">{{ manager.user.username }}</td>
               <td class="px-6 py-4 text-right">
                 <form action="{% url 'suspend_manager' manager.id %}" method="post">

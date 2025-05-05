@@ -23,34 +23,73 @@
 
     <!-- Navbar -->
     <nav class="bg-emerald-600 p-4 shadow-lg">
-        <div class="container mx-auto flex flex-wrap items-center justify-between">
-            <a href="/" class="text-white text-2xl font-bold">StockMaster</a>
-            <button class="text-white md:hidden focus:outline-none" onclick="toggleMenu()">
+        <div class="container mx-auto flex flex-col items-center justify-center">
+            <!-- Logo Centered -->
+            <a href="/" class="text-white text-3xl font-bold mb-4">StockMaster</a>
+    
+            <!-- Mobile menu button -->
+            <button class="text-white md:hidden focus:outline-none mb-2" onclick="toggleMenu()">
                 <i class="fas fa-bars"></i>
             </button>
-            <div id="menu" class="hidden w-full md:flex md:items-center md:w-auto">
-                <ul class="pt-4 text-white md:flex md:justify-between md:pt-0">
-                    <li><a class="md:p-4 py-2 block hover:text-gray-300" href="{% url 'home' %}">Dashboard</a></li>
-                    <li><a class="md:p-4 py-2 block hover:text-gray-300" href="{% url 'product_list' store.id %}">Produits</a></li>
-                    <li><a class="md:p-4 py-2 block hover:text-gray-300" href="{% url 'orders_list' store.id %}">Commandes</a></li>
-                    <li><a class="md:p-4 py-2 block hover:text-gray-300" href="/suggestion">Boite a Suggestion</a></li>
+    
+            <!-- Links Centered Under Logo -->
+            <div id="menu" class="hidden w-full md:flex md:items-center md:justify-center md:space-x-8">
+                <ul class="text-white md:flex md:space-x-8 text-center">
+                    <li>
+                        <a class="block py-2 hover:text-gray-300" href="{% url 'home' %}">
+                            <i class="fas fa-tachometer-alt mr-2"></i> Dashboard
+                        </a>
+                    </li>
+                    <li>
+                        <a class="block py-2 hover:text-gray-300" href="{% url 'product_list' store.id %}">
+                            <i class="fas fa-boxes mr-2"></i> Produits
+                        </a>
+                    </li>
+                    <li>
+                        <a class="block py-2 hover:text-gray-300" href="{% url 'orders_list' store.id %}">
+                            <i class="fas fa-shopping-cart mr-2"></i> Commandes
+                        </a>
+                    </li>
+                    <li>
+                        <a class="block py-2 hover:text-gray-300" href="/suggestion">
+                            <i class="fas fa-lightbulb mr-2"></i> Suggestion
+                        </a>
+                    </li>
                     <li class="relative">
-                        <a class="md:p-4 py-2 block hover:text-gray-300" href="/notifications">
-                            <i class="fas fa-bell"></i>
-                             {% if unread_notifications_count > 0 %}
-                            <span class="absolute top-1 right-1 inline-flex items-center justify-center w-4 h-4 text-xs font-bold leading-none text-white bg-red-600 rounded-full animate-pulse">
+                        <a class="block py-2 hover:text-gray-300" href="/notifications">
+                            <i class="fas fa-bell mr-2"></i> Notifications
+                            {% if unread_notifications_count > 0 %}
+                            <span class="absolute top-0 right-0 inline-flex items-center justify-center w-4 h-4 text-xs font-bold leading-none text-white bg-red-600 rounded-full animate-pulse">
                                 {{ unread_notifications_count }}
                             </span>
                             {% endif %}
-                        
                         </a>
                     </li>
-                    <li><a class="md:p-4 py-2 block hover:text-gray-300" href="{% url 'logout' %}">Log Out</a></li>
-
+                    <li>
+                        <a class="block py-2 hover:text-gray-300" href="{% url 'logout' %}">
+                            <i class="fas fa-sign-out-alt mr-2"></i> Log Out
+                        </a>
+                    </li>
                 </ul>
             </div>
         </div>
     </nav>
+    
+    <script>
+        function toggleMenu() {
+            const menu = document.getElementById("menu");
+            menu.classList.toggle("hidden");
+        }
+    </script>
+    
+    
+    <script>
+        function toggleMenu() {
+            const menu = document.getElementById("menu");
+            menu.classList.toggle("hidden");
+        }
+    </script>
+    
 
     <div class="container mx-auto px-4 flex-grow">
         {% block content %}

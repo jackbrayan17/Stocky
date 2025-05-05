@@ -24,6 +24,7 @@ urlpatterns = [
     path('product/<int:product_id>/update/', views.update_product, name='update_product'),
     path('home/', views.home_view, name='home'),
     # Order Routes
+    path('dashboard/suggestions/', views.suggestion_list, name='suggestion_list'),
     path('store/<int:store_id>/create-order/', views.create_order, name='create_order'),
     # path('orders-list/', views.orders_list, name='orders_list'),
      path('orders/<int:pk>/', views.OrderDetailView.as_view(), name='order_detail'),

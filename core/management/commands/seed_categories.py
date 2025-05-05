@@ -23,6 +23,7 @@ class Command(BaseCommand):
             'Jewelry'
         ]
 
+
         for cat in categories:
             Category.objects.get_or_create(name=cat)
 

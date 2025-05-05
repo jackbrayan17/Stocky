@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard</title>
+  
+  <!-- Importing external libraries -->
+  
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+  
+  <!-- TailwindCSS - use in production build -->
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+  <div class="p-6">
+    <h1 class="text-3xl font-bold text-emerald-600 mb-6">Admin Dashboard</h1>
+    <a href="{% url 'admin:index' %}" class="text-emerald-600 hover:text-emerald-800">
+        <i class="fas fa-tools"></i> Django Admin Panel
+      </a>
+<style>
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    th, td {
+        padding: 8px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+    }
+    th {
+        background-color: #f2f2f2;
+    }
+</style>
+
+<h2>Suggestions Submitted</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>WhatsApp Number</th>
+      <th>Message</th>
+      <th>Date Submitted</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for suggestion in suggestions %}
+    <tr>
+      <td>{{ suggestion.name|default:"Anonymous" }}</td>
+      <td>{{ suggestion.whatsapp_number|default:"-" }}</td>
+      <td>{{ suggestion.message }}</td>
+      <td>{{ suggestion.date_submitted|date:"Y-m-d H:i" }}</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="4">No suggestions submitted yet.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+<footer class="bg-emerald-600 text-white mt-10 p-4">
+    <div class="container mx-auto text-center">
+        <p>&copy; 2025 &copy;Stocky Place | 📞 +237 694 10 35 85 | 📧 jackbrayan1707@gmail.com</p>
+    </div>
+</footer>
+
+<script>
+    function toggleMenu() {
+        var menu = document.getElementById("menu");
+        menu.classList.toggle("hidden");
+    }
+</script>
+</body>
+</html>
